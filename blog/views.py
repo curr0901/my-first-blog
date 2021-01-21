@@ -2,9 +2,12 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils import timezone
 from .models import Post
-from django.shortcuts import render, get_object_or_404
 from .forms import PostForm
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic.edit import DeleteView
 
 @login_required
 def post_list(request):
@@ -54,8 +57,14 @@ def post_publish(request, pk):
     post.publish()
     return redirect('post_detail', pk=pk)
 
-@login_required
-def post_remove(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    post.delete()
-    return redirect('post_list')
+# @login_required
+# def post_remove(request, pk):
+#     post = get_object_or_404(Post, pk=pk)
+#     post.delete()
+#     return redirect('post_list')
+
+class PostDelete(LoginRequiredMixin, DeleteView):
+    model = Post
+    success_url = reverse_lazy('post_list')
+
+
